@@ -17,4 +17,12 @@ For each image in the test set, you should predict a probability that the image 
 
 <h3>step2. image transform to tfrecord </h3><br>
 	python fu_img_to_tfrecord.py .\dataset\train .\dataset\TFRECORD <br>
-	
+
+<h3>step3. modify config </h3><br>
+	 \xiao_pet_res\xiao_resnet50_pet.config <br>
+
+<h3>step4. image transform to tfrecord </h3><br>
+	cd C:\Users\VIPLAB\Desktop\models
+
+	python object_detection/train.py --logtostderr --pipeline_config_path=C:\Users\VIPLAB\Desktop\dog_vs_cat_detection\xiao_pet_res\xiao_resnet50_pet.config --train_dir=C:\Users\VIPLAB\Desktop\dog_vs_cat_detection\xiao_pet_res\train
+ <br>
