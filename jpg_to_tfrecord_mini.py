@@ -18,14 +18,17 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	width = 256
 	with tf.gfile.FastGFile(img_path + img_name, 'rb') as fid:
 	    encoded_jpg = fid.read() 
-	encoded_jpg_io = io.BytesIO(encoded_jpg)
 
+	# encoded_jpg_io = io.BytesIO(encoded_jpg)
+	# image = Image.open(encoded_jpg_io)
+	# width, height = image.size
 	# resizing the image here
 	decoded_image = tf.image.decode_jpeg(encoded_jpg)
 	decoded_image_resized = tf.image.resize_images(decoded_image, [height, width]) # this returns float32
 	decoded_image_resized = tf.cast(decoded_image_resized, tf.uint8)
 	encoded_jpg   = tf.image.encode_jpeg(decoded_image_resized) # expects uint8
 	encoded_image_data = tf.Session().run(encoded_jpg) #  I think this may not be the right way of doing this
+
 
 	# with tf.Session() as sess:  
 	# 	image_raw_data_jpg = tf.gfile.FastGFile(img_path + img_name, 'rb').read()  
@@ -45,21 +48,23 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 
 	image_format = b'jpg'
 
-	xmins = [28.0 / width]
-	xmaxs = [228.0 / width]
-	ymins = [28.0 / height]
-	ymaxs = [228.0 / height]
-	classes_text = [str.encode(label_text)]
+	xmins = [30.0 / width]
+	xmaxs = [(width - 30) / width]
+	ymins = [30.0 / height]
+	ymaxs = [(height - 30.0) / height]
+	# classes_text = [str.encode(label_text)]
+	classes_text = [label_text.encode('utf8')]
 	classes = []
 	classes.append(int(label))
+	print(classes, classes_text)
 
 	tf_example = tf.train.Example(features=tf.train.Features(feature={
 		'image/height': dataset_util.int64_feature(height),
 		'image/width': dataset_util.int64_feature(width),
 		'image/filename': dataset_util.bytes_feature(b_filename),
 		'image/source_id': dataset_util.bytes_feature(b_filename),
-		# 'image/encoded': dataset_util.bytes_feature(encoded_image_data),
 		'image/encoded': dataset_util.bytes_feature(encoded_image_data),
+		# 'image/encoded': dataset_util.bytes_feature(encoded_jpg),
 		'image/format': dataset_util.bytes_feature(image_format),
 		'image/object/bbox/xmin': dataset_util.float_list_feature(xmins),
 		'image/object/bbox/xmax': dataset_util.float_list_feature(xmaxs),
@@ -73,20 +78,24 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 
 if __name__ == '__main__':
 	mode_list = ["train", "eval"]
+	# mode_list = ["train"]
 	for mode in mode_list:
 		cwd = "C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/self_divide/" + mode + "/"
 		classes = ["cat", "dog"]
-		writer = tf.python_io.TFRecordWriter(mode + ".tfrecords")
+		writer = tf.python_io.TFRecordWriter("C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/TFRECORD/" + mode + ".tfrecords")
 		for index, name in enumerate(classes):
 			class_path = cwd + name + "/"
 			for img_count, img_name in enumerate(os.listdir(class_path)):
-				# if (img_count % 100 == 99):
-				# 	output_str = mode + " step -- " + str(img_count)
-				# 	print(output_str)
-				# 	break
-			
+				if (img_count % 50 == 49):
+					output_str = mode + " step -- " + str(img_count)
+					print(output_str)
+					break
+				if (img_count % 100 == 0):
+					output_str = mode + " step -- " + str(img_count)
+					print(output_str)
+
 				# img_path = class_path + img_name
-				each_record = create_cat_tf_example(label = index, label_text = name, img_path = class_path, img_name = img_name)
+				each_record = create_cat_tf_example(label = index + 1, label_text = name, img_path = class_path, img_name = img_name)
 				writer.write(each_record.SerializeToString())  #序列化为字符串
 		writer.close()
 		print(mode , "is finished.")
