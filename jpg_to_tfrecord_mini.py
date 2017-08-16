@@ -56,7 +56,6 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	classes_text = [label_text.encode('utf8')]
 	classes = []
 	classes.append(int(label))
-	print(classes, classes_text)
 
 	tf_example = tf.train.Example(features=tf.train.Features(feature={
 		'image/height': dataset_util.int64_feature(height),
@@ -77,8 +76,8 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 
 
 if __name__ == '__main__':
-	mode_list = ["train", "eval"]
-	# mode_list = ["train"]
+	# mode_list = ["train", "eval"]
+	mode_list = ["train"]
 	for mode in mode_list:
 		cwd = "C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/self_divide/" + mode + "/"
 		classes = ["cat", "dog"]
@@ -86,10 +85,6 @@ if __name__ == '__main__':
 		for index, name in enumerate(classes):
 			class_path = cwd + name + "/"
 			for img_count, img_name in enumerate(os.listdir(class_path)):
-				if (img_count % 50 == 49):
-					output_str = mode + " step -- " + str(img_count)
-					print(output_str)
-					break
 				if (img_count % 100 == 0):
 					output_str = mode + " step -- " + str(img_count)
 					print(output_str)

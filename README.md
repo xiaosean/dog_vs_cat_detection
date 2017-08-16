@@ -16,7 +16,8 @@ For each image in the test set, you should predict a probability that the image 
 		+ cat<br>
 
 <h3>step2. image transform to tfrecord </h3><br>
-	python fu_img_to_tfrecord.py .\dataset\train .\dataset\TFRECORD <br>
+	python jpg_to_tfrecord_mini.py <br>
+
 
 <h3>step3. modify config </h3><br>
 	 \xiao_pet_res\xiao_resnet50_pet.config <br>
