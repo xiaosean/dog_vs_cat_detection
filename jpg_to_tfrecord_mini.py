@@ -3,7 +3,13 @@ import tensorflow as tf
 import io
 from object_detection.utils import dataset_util
 from PIL import Image
+from time import time
 #cwd = os.getcwd()
+# sess.run(tf.initialize_all_variables())
+# sess = tf.Session()
+# sess.run(tf.global_variables_initializer())
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
 def create_cat_tf_example(label, label_text, img_path, img_name):
 	"""Creates a tf.Example proto from sample cat image.
@@ -23,11 +29,12 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	# image = Image.open(encoded_jpg_io)
 	# width, height = image.size
 	# resizing the image here
+
 	decoded_image = tf.image.decode_jpeg(encoded_jpg)
 	decoded_image_resized = tf.image.resize_images(decoded_image, [height, width]) # this returns float32
 	decoded_image_resized = tf.cast(decoded_image_resized, tf.uint8)
 	encoded_jpg   = tf.image.encode_jpeg(decoded_image_resized) # expects uint8
-	encoded_image_data = tf.Session().run(encoded_jpg) #  I think this may not be the right way of doing this
+	encoded_image_data = sess.run(encoded_jpg) #  I think this may not be the right way of doing this
 
 
 	# with tf.Session() as sess:  
@@ -77,6 +84,9 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 
 if __name__ == '__main__':
 	# mode_list = ["train", "eval"]
+	start_time = time()
+	each_batch_time = time()
+
 	mode_list = ["train"]
 	for mode in mode_list:
 		cwd = "C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/self_divide/" + mode + "/"
@@ -87,10 +97,15 @@ if __name__ == '__main__':
 			for img_count, img_name in enumerate(os.listdir(class_path)):
 				if (img_count % 100 == 0):
 					output_str = mode + " step -- " + str(img_count)
-					print(output_str)
-
+					print(output_str, " compute 100 image _ batch time = ", time() - each_batch_time)
+					each_batch_time = time()
+					sess.close()
+					# reset session otherwise it will run slowly
+					tf.reset_default_graph()
+					sess = tf.Session()
 				# img_path = class_path + img_name
 				each_record = create_cat_tf_example(label = index + 1, label_text = name, img_path = class_path, img_name = img_name)
 				writer.write(each_record.SerializeToString())  #序列化为字符串
 		writer.close()
 		print(mode , "is finished.")
+	print("cost time =", time() - start_time)
