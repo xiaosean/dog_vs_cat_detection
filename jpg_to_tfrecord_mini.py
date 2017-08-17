@@ -5,10 +5,19 @@ from object_detection.utils import dataset_util
 from PIL import Image
 from time import time
 #cwd = os.getcwd()
-# sess.run(tf.initialize_all_variables())
-# sess = tf.Session()
-# sess.run(tf.global_variables_initializer())
+# new a tensorflow model
 sess = tf.Session()
+# make a placeholder more flexible
+encoded_jpg_ph = tf.placeholder(tf.string, shape=[])
+# set resize layer
+height = 256
+width = 256	
+# resizing the image here
+decoded_image = tf.image.decode_jpeg(encoded_jpg_ph)
+decoded_image_resized = tf.image.resize_images(decoded_image, [height, width]) # this returns float32
+decoded_image_resized_uint = tf.cast(decoded_image_resized, tf.uint8)
+resize_image   = tf.image.encode_jpeg(decoded_image_resized_uint) # expects uint8
+# reset all variables
 sess.run(tf.global_variables_initializer())
 
 def create_cat_tf_example(label, label_text, img_path, img_name):
@@ -20,41 +29,14 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	Returns:
 	example: The created tf.Example.
 	"""
-	height = 256
-	width = 256
+	
 	with tf.gfile.FastGFile(img_path + img_name, 'rb') as fid:
-	    encoded_jpg = fid.read() 
+	    encoded_image = fid.read() 
 
-	# encoded_jpg_io = io.BytesIO(encoded_jpg)
-	# image = Image.open(encoded_jpg_io)
-	# width, height = image.size
-	# resizing the image here
-
-	decoded_image = tf.image.decode_jpeg(encoded_jpg)
-	decoded_image_resized = tf.image.resize_images(decoded_image, [height, width]) # this returns float32
-	decoded_image_resized = tf.cast(decoded_image_resized, tf.uint8)
-	encoded_jpg   = tf.image.encode_jpeg(decoded_image_resized) # expects uint8
-	encoded_image_data = sess.run(encoded_jpg) #  I think this may not be the right way of doing this
-
-
-	# with tf.Session() as sess:  
-	# 	image_raw_data_jpg = tf.gfile.FastGFile(img_path + img_name, 'rb').read()  
-	# 	img_data_jpg = tf.image.decode_jpeg(image_raw_data_jpg)
-	# 	img_data_jpg = tf.image.convert_image_dtype(img_data_jpg, dtype=tf.float32)  
-	# 	resized_image = tf.image.resize_images(img_data_jpg, [height, width])  
-	# 	encoded_image_data = sess.run(tf.cast(resized_image, tf.uint8)).tobytes()  
-	# # img = Image.open(img_path + img_name)
-	# img = img.resize((256,256))
+	encoded_image_data = sess.run(resize_image, {encoded_jpg_ph: encoded_image}) #  I think this may not be the right way of doing this
 	b_filename = str.encode(img_name)
-	# encoded_image_data = img.tobytes()            #将图片转化为原生bytes
-	# example = tf.train.Example(features=tf.train.Features(feature={
-	#     "label": tf.train.Feature(int64_list=tf.train.Int64List(value=[index])),
-	#     'img_raw': tf.train.Feature(bytes_list=tf.train.BytesList(value=[img_raw]))
-	# }))
-
 
 	image_format = b'jpg'
-
 	xmins = [30.0 / width]
 	xmaxs = [(width - 30) / width]
 	ymins = [30.0 / height]
@@ -83,11 +65,11 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 
 
 if __name__ == '__main__':
-	# mode_list = ["train", "eval"]
 	start_time = time()
 	each_batch_time = time()
-
-	mode_list = ["train"]
+	
+	# collect the dirs
+	mode_list = ["train", "eval"]
 	for mode in mode_list:
 		cwd = "C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/self_divide/" + mode + "/"
 		classes = ["cat", "dog"]
@@ -99,13 +81,14 @@ if __name__ == '__main__':
 					output_str = mode + " step -- " + str(img_count)
 					print(output_str, " compute 100 image _ batch time = ", time() - each_batch_time)
 					each_batch_time = time()
-					sess.close()
-					# reset session otherwise it will run slowly
-					tf.reset_default_graph()
-					sess = tf.Session()
+					# sess.close()
+					# # reset session otherwise it will run slowly
+					# tf.reset_default_graph()
+					# sess = tf.Session()
 				# img_path = class_path + img_name
 				each_record = create_cat_tf_example(label = index + 1, label_text = name, img_path = class_path, img_name = img_name)
 				writer.write(each_record.SerializeToString())  #序列化为字符串
 		writer.close()
 		print(mode , "is finished.")
+	sess.close()
 	print("cost time =", time() - start_time)
