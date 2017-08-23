@@ -37,10 +37,10 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	b_filename = str.encode(img_name)
 
 	image_format = b'jpg'
-	xmins = [30.0 / width]
-	xmaxs = [(width - 30) / width]
-	ymins = [30.0 / height]
-	ymaxs = [(height - 30.0) / height]
+	xmins = [10.0 / width]
+	xmaxs = [(width - 10) / width]
+	ymins = [10.0 / height]
+	ymaxs = [(height - 10.0) / height]
 	# classes_text = [str.encode(label_text)]
 	classes_text = [label_text.encode('utf8')]
 	classes = []
