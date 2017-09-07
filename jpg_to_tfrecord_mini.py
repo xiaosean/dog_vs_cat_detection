@@ -42,10 +42,13 @@ def create_cat_tf_example(label, label_text, img_path, img_name):
 	ymins = [10.0 / height]
 	ymaxs = [(height - 10.0) / height]
 	# classes_text = [str.encode(label_text)]
-	classes_text = [label_text.encode('utf8')]
+	classes_text = []
+	if label_text:
+		classes_text.append(label_text.encode('utf8'))
 	classes = []
+	# if label == 1:
 	classes.append(int(label))
-
+	# print(classes_text, classes, b_filename)
 	tf_example = tf.train.Example(features=tf.train.Features(feature={
 		'image/height': dataset_util.int64_feature(height),
 		'image/width': dataset_util.int64_feature(width),
@@ -72,7 +75,9 @@ if __name__ == '__main__':
 	mode_list = ["train", "eval"]
 	for mode in mode_list:
 		cwd = "C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/self_divide/" + mode + "/"
-		classes = ["cat", "dog"]
+		# classes = ["cat", "dog"]
+		classes = ["dog", "cat"]
+
 		writer = tf.python_io.TFRecordWriter("C:/Users/VIPLAB/Desktop/dog_vs_cat_detection/dataset/TFRECORD/" + mode + ".tfrecords")
 		for index, name in enumerate(classes):
 			class_path = cwd + name + "/"
@@ -80,13 +85,20 @@ if __name__ == '__main__':
 				if (img_count % 100 == 0):
 					output_str = mode + " step -- " + str(img_count)
 					print(output_str, " compute 100 image _ batch time = ", time() - each_batch_time)
+					print("id =", int(index+1),name, img_name, class_path)
 					each_batch_time = time()
 					# sess.close()
 					# # reset session otherwise it will run slowly
 					# tf.reset_default_graph()
 					# sess = tf.Session()
 				# img_path = class_path + img_name
-				each_record = create_cat_tf_example(label = index + 1, label_text = name, img_path = class_path, img_name = img_name)
+				each_record = create_cat_tf_example(label = index + 1 , label_text = name, img_path = class_path, img_name = img_name)
+
+				# if(name == "dog"):
+					# each_record = create_cat_tf_example(label = 1, label_text = name, img_path = class_path, img_name = img_name)
+				# else:
+					# each_record = create_cat_tf_example(label = None, label_text = None, img_path = class_path, img_name = img_name)
+
 				writer.write(each_record.SerializeToString())  #序列化为字符串
 		writer.close()
 		print(mode , "is finished.")
