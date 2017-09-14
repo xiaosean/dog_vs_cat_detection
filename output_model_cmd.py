@@ -1,3 +1,3 @@
 import os
-os.system('python ../models/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path "./xiao_pet_res/xiao_resnet50_pet.config" --checkpoint_path "./xiao_pet_res/train/model.ckpt-55847" --inference_graph_path "./xiao_pet_res/output_inference_graph.pb"')
+os.system('python ../models/object_detection/export_inference_graph.py --input_type image_tensor --pipeline_config_path "./xiao_pet_res/xiao_resnet50_pet.config" --checkpoint_path "./xiao_pet_res/train/model.ckpt-26875" --inference_graph_path "./xiao_pet_res/output_inference_graph.pb"')
 # python ../models/object_detection/export_inference_graph.py --input_type encoded_image_string_tensor --pipeline_config_path "./xiao_pet_res/xiao_resnet50_pet.config" --checkpoint_path "./xiao_pet_res/train/model.ckpt-17507" --inference_graph_path  "./xiao_pet_res/output_inference_graph.pb"
