@@ -33,10 +33,15 @@ For each image in the test set, you should predict a probability that the image 
 			+ dog<br>
 			+ cat<br>
 <h3>step2. use coco model to recongnize it is dog or cat </h3><br>
-	python jpg_to_tfrecord_mini.py <br>
-
+	auto_bounding_use_coco.ipynb <br>
+	u will get a dir - auto_box<br>
+	----auto_box
+		auto_box.csv
+		multi_box_filename.csv
+		+box_image
+			*.jpg (it will show the coco model box the picture)
 <h3>step2. image transform to tfrecord </h3><br>
-	python jpg_to_tfrecord_mini.py <br>
+	to_tfrecord_load_box.ipynb <br>
 
 
 <h3>step3. modify config </h3><br>
